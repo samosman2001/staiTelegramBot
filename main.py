@@ -26,6 +26,8 @@ TEXTS = {
         "contact_operator": "Связаться с оператором",
         "back": "Назад",
         "operator_text": "Пока что связь с оператором ещё не подключена. Скоро здесь появится возможность написать оператору.",
+        "description" : "Официальный Телеграм бот STAI  \nЕсть вопросы? Напишите нам, и наша команда ответит вам в течении 24 часов!\n -> support@stai.uz",
+        "description_title" : "Описание",
         "unknown_action": "Не удалось обработать действие.",
         "welcome": "Добро пожаловать в STAI bot!",
         "website": "Наш официальный сайт: www.stai.uz",
@@ -125,6 +127,7 @@ TEXTS = {
                     },
                 },
             },
+
             "house_rules": {
                 "title": "Раздел: Правила проживания",
                 "questions": {
@@ -233,6 +236,8 @@ TEXTS = {
         "back": "Orqaga",
         "operator_text": "Hozircha operator bilan bog‘lanish funksiyasi ulanmagan. Tez orada bu yerda operatorga yozish imkoniyati paydo bo‘ladi.",
         "unknown_action": "Amalni bajarib bo‘lmadi.",
+        "description" : "STAI'ni rasmiy Telegram bot\nSavollaringiz bormi? Biz bilan bog'laning, jamoamiz 24 soat ichida javob beradi!\n -> support@stai.uz",
+        "description_title" : "Bot haqida ma’lumot",
         "welcome": "STAI botiga xush kelibsiz!",
         "website": "Bizning rasmiy veb-saytimiz: www.stai.uz",
         "sections": {
@@ -453,6 +458,7 @@ def main_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(t["payment_refunds"], callback_data="section:payment_refunds")],
         [InlineKeyboardButton(t["legal_docs"], callback_data="section:legal_docs")],
         [InlineKeyboardButton(t["contact_operator"], callback_data="operator")],
+        [InlineKeyboardButton(t["description_title"], callback_data="description")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -525,7 +531,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         )
         return
-
+    if data == "description":
+        await query.edit_message_text(
+            text = t["description"],
+            reply_markup= InlineKeyboardMarkup([[InlineKeyboardButton(t["back"], callback_data="main_menu")]])
+        )
+        return
     if data.startswith("section:"):
         section_key = data.split(":")[1]
         section_title = t["sections"][section_key]["title"]
