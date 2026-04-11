@@ -11,6 +11,8 @@ from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
+    MessageHandler,
+    filters
 )
 TOKEN = "8155567969:AAF4X57d0J7N6WSiHZDD9gfwWz8sHvLbPHE"
 
@@ -587,7 +589,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(CallbackQueryHandler(message_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,message_handler))
     print("Bot is running...")
     app.run_polling()
 
