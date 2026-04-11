@@ -1,5 +1,5 @@
 # This is a sample Python script.
-
+from rest_framework.fields import empty
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
@@ -29,6 +29,7 @@ TEXTS = {
         "description" : "Официальный Телеграм бот STAI  \nЕсть вопросы? Напишите нам, и наша команда ответит вам в течении 24 часов!\n -> support@stai.uz",
         "description_title" : "Описание бота",
         "unknown_action": "Не удалось обработать действие.",
+        "issue_report":"Сообщить о проблеме",
         "welcome": "Добро пожаловать в STAI bot!",
         "website": "Наш официальный сайт: www.stai.uz",
         "sections": {
@@ -239,6 +240,7 @@ TEXTS = {
         "description" : "STAI'ni rasmiy Telegram bot\nSavollaringiz bormi? Biz bilan bog'laning, jamoamiz 24 soat ichida javob beradi!\n -> support@stai.uz",
         "description_title" : "Bot haqida ma’lumot",
         "welcome": "STAI botiga xush kelibsiz!",
+        "issue_report":"Muommoni aytish",
         "website": "Bizning rasmiy veb-saytimiz: www.stai.uz",
         "sections": {
             "about_stai": {
@@ -459,6 +461,7 @@ def main_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(t["legal_docs"], callback_data="section:legal_docs")],
         [InlineKeyboardButton(t["contact_operator"], callback_data="operator")],
         [InlineKeyboardButton(t["description_title"], callback_data="description")],
+        [InlineKeyboardButton(t["issue_report"],callback_data ="issue_report")],
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -522,7 +525,15 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=main_menu_keyboard(lang)
         )
         return
+    if data == "issue_report":
+        context.user_data["state"] = "Waiting for support"
 
+        await query.edit_message_text(
+            text=t["issue_report"],
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(t["back"],callback_data="main_menu")]]),
+        )
+
+        return
     if data == "operator":
         await query.edit_message_text(
             text=t["operator_text"],
@@ -564,13 +575,19 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     )
 
+async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
+    state  = context.user_data["state"]
+    print(2)
+    if state == "Waiting for support" and update.message is not None:
+        user_text =  update.message.text
+        print("User Response",user_text)
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
-
+    app.add_handler(CallbackQueryHandler(message_handler))
     print("Bot is running...")
     app.run_polling()
 
