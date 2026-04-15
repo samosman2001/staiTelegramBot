@@ -14,6 +14,9 @@ from telegram.ext import (
     MessageHandler,
     filters
 )
+from services import email
+from staiTelegramBot.services.email import send_support_email
+
 TOKEN = "8155567969:AAF4X57d0J7N6WSiHZDD9gfwWz8sHvLbPHE"
 
 TEXTS = {
@@ -582,7 +585,15 @@ async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
     print(2)
     if state == "Waiting for support" and update.message is not None:
         user_text =  update.message.text
+
         print("User Response",user_text)
+        send_support_email(
+            user_message=user_text,
+            username=update.effective_user.username or "No username",
+            user_id=str(update.effective_user.id)
+        )
+        context.user_data["state"] = ""
+        await update.message.reply_text("Your Issue has been sent")
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
