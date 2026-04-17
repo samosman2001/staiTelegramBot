@@ -600,6 +600,9 @@ async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
         )
         context.user_data["state"] = ""
         await update.message.reply_text(t["issue_result"])
+        await update.message.reply_text(t["main_menu"],
+        reply_markup =main_menu_keyboard(lang))
+        return
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
