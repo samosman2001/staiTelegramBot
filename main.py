@@ -15,7 +15,7 @@ from telegram.ext import (
     filters
 )
 from services import email
-from staiTelegramBot.services.email import send_support_email
+from services.email import send_support_email
 
 TOKEN = "8155567969:AAF4X57d0J7N6WSiHZDD9gfwWz8sHvLbPHE"
 
@@ -35,6 +35,7 @@ TEXTS = {
         "description_title" : "Описание бота",
         "unknown_action": "Не удалось обработать действие.",
         "issue_report":"Сообщить о проблеме",
+        "issue_result":"Сообщение о проблеме отправлено",
         "welcome": "Добро пожаловать в STAI bot!",
         "website": "Наш официальный сайт: www.stai.uz",
         "sections": {
@@ -246,6 +247,7 @@ TEXTS = {
         "description_title" : "Bot haqida ma’lumot",
         "welcome": "STAI botiga xush kelibsiz!",
         "issue_report":"Muommoni aytish",
+        "issue_result":"Murojaat yuborildi",
         "website": "Bizning rasmiy veb-saytimiz: www.stai.uz",
         "sections": {
             "about_stai": {
@@ -582,6 +584,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
     state  = context.user_data["state"]
+    lang = get_language(context)
+    t = TEXTS[lang]
     print(2)
     if state == "Waiting for support" and update.message is not None:
         user_text =  update.message.text
@@ -593,7 +597,7 @@ async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
             user_id=str(update.effective_user.id)
         )
         context.user_data["state"] = ""
-        await update.message.reply_text("Your Issue has been sent")
+        await update.message.reply_text(t["issue_result"])
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
