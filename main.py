@@ -37,6 +37,7 @@ TEXTS = {
         "issue_report":"Сообщить о проблеме",
         "issue_result":"Сообщение о проблеме отправлено",
         "welcome": "Добро пожаловать в STAI bot!",
+        "issue_input_notification":"Введите ваше сообщение ниже",
         "website": "Наш официальный сайт: www.stai.uz",
         "sections": {
             "about_stai": {
@@ -248,6 +249,7 @@ TEXTS = {
         "welcome": "STAI botiga xush kelibsiz!",
         "issue_report":"Muommoni aytish",
         "issue_result":"Murojaat yuborildi",
+        "issue_input_notification":"Iltimos, xabaringizni quyida kiriting",
         "website": "Bizning rasmiy veb-saytimiz: www.stai.uz",
         "sections": {
             "about_stai": {
@@ -539,7 +541,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text=t["issue_report"],
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(t["back"],callback_data="main_menu")]]),
         )
-
+        await query.message.reply_text(t["issue_input_notification"])
         return
     if data == "operator":
         await query.edit_message_text(
