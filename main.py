@@ -502,7 +502,7 @@ def answer_keyboard(lang: str, section_key: str) -> InlineKeyboardMarkup:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
+     await update.message.reply_text(
         "STAI bot\n\nChoose language / Выберите язык / Tilni tanlang:",
         reply_markup=language_keyboard()
     )
@@ -518,8 +518,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lang = data.split(":")[1]
         context.user_data["lang"] = lang
         t = TEXTS[lang]
-
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=f"{t['welcome']}\n\n{t['main_menu']}",
             reply_markup=main_menu_keyboard(lang)
         )
@@ -529,22 +529,32 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     t = TEXTS[lang]
 
     if data == "main_menu":
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=t["main_menu"],
             reply_markup=main_menu_keyboard(lang)
         )
         return
+    if  data  == "main_menu_from_issue_report":
+        await query.message.delete()
+        await update.effective_chat.send_message(
+            text=t["main_menu"],
+            reply_markup=main_menu_keyboard(lang)
+        )
+        return
+
     if data == "issue_report":
         context.user_data["state"] = "Waiting for support"
-
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=t["issue_report"],
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(t["back"],callback_data="main_menu")]]),
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(t["back"],callback_data="main_menu_from_issue_report")]]),
         )
         await query.message.reply_text(t["issue_input_notification"])
         return
     if data == "operator":
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=t["operator_text"],
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton(t["back"], callback_data="main_menu")]]
@@ -552,16 +562,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     if data == "description":
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text = t["description"],
             reply_markup= InlineKeyboardMarkup([[InlineKeyboardButton(t["back"], callback_data="main_menu")]])
         )
         return
     if data.startswith("section:"):
+
         section_key = data.split(":")[1]
         section_title = t["sections"][section_key]["title"]
-
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=section_title,
             reply_markup=section_keyboard(lang, section_key)
         )
@@ -570,14 +582,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data.startswith("question:"):
         _, section_key, question_key = data.split(":")
         answer_text = t["sections"][section_key]["questions"][question_key]["a"]
-
-        await query.edit_message_text(
+        await query.message.delete()
+        await update.effective_chat.send_message(
             text=answer_text,
             reply_markup=answer_keyboard(lang, section_key)
         )
         return
-
-    await query.edit_message_text(
+    await query.message.delete()
+    await update.effective_chat.send_message(
         text=t["unknown_action"],
         reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton(t["back"], callback_data="main_menu")]]
@@ -588,6 +600,8 @@ async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
     state  = context.user_data["state"]
     lang = get_language(context)
     t = TEXTS[lang]
+    query = update.callback_query
+
     print(2)
     if state == "Waiting for support" and update.message is not None:
         user_text =  update.message.text
@@ -598,8 +612,8 @@ async def message_handler(update: Update, context:ContextTypes.DEFAULT_TYPE):
             username=update.effective_user.username or "No username",
             user_id=str(update.effective_user.id)
         )
-        context.user_data["state"] = ""
         await update.message.reply_text(t["issue_result"])
+        context.user_data["state"] = ""
         await update.message.reply_text(t["main_menu"],
         reply_markup =main_menu_keyboard(lang))
         return
@@ -610,6 +624,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,message_handler))
+
     print("Bot is running...")
     app.run_polling()
 
