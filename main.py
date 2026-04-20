@@ -17,7 +17,7 @@ from telegram.ext import (
 from services import email
 from services.email import send_support_email
 
-TOKEN = "8155567969:AAF4X57d0J7N6WSiHZDD9gfwWz8sHvLbPHE"
+TOKEN = "8639611272:AAG_NcE4d2AiYLObNpNUzM9IaP-D-hhRixM"
 
 TEXTS = {
     "ru": {
